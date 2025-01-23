@@ -1,11 +1,25 @@
 import bcrypt from "bcrypt";
+import { Request } from "express";
+import { validationResult } from "express-validator";
 import UserModel from "../models/user-model";
 import AppError from "../exceptions/app-exception";
 import UserDto from "../dto/user-dto";
+import tokenService from "./token-service";
 
 class UserService {
+  public validationReq(req: Request) {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      throw AppError.BadRequest(
+        "Произошла ошибка при валидации данных",
+        errors.array()
+      );
+    }
+  }
+
   public async registration(email: string, password: string) {
-    const existingUser = await UserModel.findOne({ email });
+    const existingUser = await UserModel.findOne({ email }).lean();
 
     if (existingUser) {
       throw AppError.Conflict(
@@ -20,13 +34,44 @@ class UserService {
       email,
     });
     const savedUser = await newUser.save();
-    const user = new UserDto(savedUser);
+    const userDto = new UserDto(savedUser);
 
-    return user;
+    const tokens = tokenService.getTokens({ ...userDto });
+    await tokenService.saveToken(userDto.email, tokens.refreshToken);
+
+    return {
+      ...userDto,
+      ...tokens,
+    };
   }
 
-  public async login() {
-    //
+  public async login(email: string, password: string) {
+    const existingUser = await UserModel.findOne({ email }).lean();
+
+    if (!existingUser) {
+      throw AppError.Unauthorized(
+        "Пользователь с таким адресом электронной почты не найден."
+      );
+    }
+
+    const isMatchPassword = await bcrypt.compare(
+      password,
+      existingUser.password
+    );
+
+    if (!isMatchPassword) {
+      throw AppError.Unauthorized("Пароль неверен.");
+    }
+
+    const userDto = new UserDto(existingUser);
+
+    const tokens = tokenService.getTokens({ ...userDto });
+    await tokenService.saveToken(userDto.email, tokens.refreshToken);
+
+    return {
+      ...userDto,
+      ...tokens,
+    };
   }
 }
 

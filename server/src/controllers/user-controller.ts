@@ -1,33 +1,42 @@
 import { NextFunction, Request, Response } from "express";
-import { validationResult } from "express-validator";
 import userService from "../services/user-service";
 import { User } from "../types/user";
 import { StatusCode } from "../types/status-code";
-import AppError from "../exceptions/app-exception";
+import TimeService from "../services/time-service";
 
 class UserController {
   public async registration(req: Request, res: Response, next: NextFunction) {
     try {
-      const errors = validationResult(req);
-
-      if (!errors.isEmpty()) {
-        throw AppError.BadRequest(
-          "Произошла ошибка при валидации данных",
-          errors.array()
-        );
-      }
+      userService.validationReq(req);
 
       const { email, password } = req.body as User;
-      const user = await userService.registration(email, password);
+      const userData = await userService.registration(email, password);
 
-      res.status(StatusCode.CREATED).json(user);
+      res.cookie("refreshToken", userData.refreshToken, {
+        maxAge: TimeService.daysToMilliseconds(1),
+        httpOnly: true,
+      });
+      res.status(StatusCode.CREATED).json(userData);
     } catch (error) {
       next(error);
     }
   }
 
-  public async login(req: Request, res: Response) {
-    //
+  public async login(req: Request, res: Response, next: NextFunction) {
+    try {
+      userService.validationReq(req);
+
+      const { email, password } = req.body as User;
+      const userData = await userService.login(email, password);
+
+      res.cookie("refreshToken", userData.refreshToken, {
+        maxAge: TimeService.daysToMilliseconds(1),
+        httpOnly: true,
+      });
+      res.status(StatusCode.OK).json(userData);
+    } catch (error) {
+      next(error);
+    }
   }
 }
 

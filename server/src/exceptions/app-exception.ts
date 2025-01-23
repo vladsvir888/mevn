@@ -21,6 +21,10 @@ class AppError extends Error {
   public static Conflict(message: string) {
     return new AppError(StatusCode.CONFLICT, message);
   }
+
+  public static Unauthorized(message: string) {
+    return new AppError(StatusCode.UNAUTHORIZED, message);
+  }
 }
 
 export default AppError;
