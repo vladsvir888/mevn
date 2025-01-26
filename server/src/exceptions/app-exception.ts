@@ -25,6 +25,10 @@ class AppError extends Error {
   public static Unauthorized(message: string) {
     return new AppError(StatusCode.UNAUTHORIZED, message);
   }
+
+  public static NotFound(message: string) {
+    return new AppError(StatusCode.NOT_FOUND, message);
+  }
 }
 
 export default AppError;

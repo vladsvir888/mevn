@@ -1,10 +1,13 @@
 import { body } from "express-validator";
 
-const userValidator = [
-  body("email", "Неверный адрес электронной почты.").isEmail(),
-  body("password", "Минимальная длина пароля — 6 символов.").isLength({
-    min: 6,
-  }),
-];
+const emailValidator = () => {
+  return body("email", "Неверный формат электронной почты.").isEmail();
+};
 
-export default userValidator;
+const passwordValidator = () => {
+  return body("password", "Минимальная длина пароля — 6 символов.").isLength({
+    min: 6,
+  });
+};
+
+export const userValidator = [emailValidator(), passwordValidator()];

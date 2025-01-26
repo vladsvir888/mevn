@@ -5,6 +5,7 @@ import UserModel from "../models/user-model";
 import AppError from "../exceptions/app-exception";
 import UserDto from "../dto/user-dto";
 import tokenService from "./token-service";
+import { UserResponse } from "../types/user";
 
 class UserService {
   public validationReq(req: Request) {
@@ -36,7 +37,7 @@ class UserService {
     const savedUser = await newUser.save();
     const userDto = new UserDto(savedUser);
 
-    const tokens = tokenService.getTokens({ ...userDto });
+    const tokens = await tokenService.getTokens({ ...userDto });
     await tokenService.saveToken(userDto.email, tokens.refreshToken);
 
     return {
@@ -65,7 +66,35 @@ class UserService {
 
     const userDto = new UserDto(existingUser);
 
-    const tokens = tokenService.getTokens({ ...userDto });
+    const tokens = await tokenService.getTokens({ ...userDto });
+    await tokenService.saveToken(userDto.email, tokens.refreshToken);
+
+    return {
+      ...userDto,
+      ...tokens,
+    };
+  }
+
+  public async logout(refreshToken: string) {
+    await tokenService.removeToken(refreshToken);
+  }
+
+  public async refresh(refreshToken: string) {
+    if (!refreshToken) {
+      throw AppError.Unauthorized("Токен не передан.");
+    }
+
+    const decoded = (await tokenService.decodeRefreshToken(
+      refreshToken
+    )) as UserResponse;
+
+    if (!decoded) {
+      throw AppError.Unauthorized("Невалидный токен.");
+    }
+
+    const userDto = new UserDto(decoded);
+
+    const tokens = await tokenService.getTokens({ ...userDto });
     await tokenService.saveToken(userDto.email, tokens.refreshToken);
 
     return {

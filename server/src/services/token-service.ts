@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import TokenModel from "../models/token-model";
 
 class TokenService {
-  public getTokens(payload: object) {
+  public async getTokens(payload: object) {
     const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET ?? "", {
       expiresIn: "1h",
     });
@@ -26,6 +26,26 @@ class TokenService {
     } else {
       await TokenModel.updateOne({ userEmail }, { userEmail, refreshToken });
     }
+  }
+
+  public async decodeAccessToken(accessToken: string) {
+    try {
+      return jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET ?? "");
+    } catch {
+      return null;
+    }
+  }
+
+  public async decodeRefreshToken(refreshToken: string) {
+    try {
+      return jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET ?? "");
+    } catch {
+      return null;
+    }
+  }
+
+  public async removeToken(refreshToken: string) {
+    await TokenModel.deleteOne({ refreshToken });
   }
 }
 

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import AppError from "../exceptions/app-exception";
 import { StatusCode } from "../types/status-code";
 
-const ErrorMiddleware = (
+const errorMiddleware = (
   error: AppError,
   req: Request,
   res: Response,
@@ -15,8 +15,7 @@ const ErrorMiddleware = (
     message: error.message || "Произошла какая-то ошибка",
     timestamp: error.timestamp,
     errors: error.errors,
-    stack: process.env.NODE_ENV === "development" ? error.stack : {},
   });
 };
 
-export default ErrorMiddleware;
+export default errorMiddleware;
