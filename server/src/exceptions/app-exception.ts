@@ -29,6 +29,10 @@ class AppError extends Error {
   public static NotFound(message: string) {
     return new AppError(StatusCode.NOT_FOUND, message);
   }
+
+  public static Forbidden(message: string) {
+    return new AppError(StatusCode.FORBIDDEN, message);
+  }
 }
 
 export default AppError;

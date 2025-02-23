@@ -1,0 +1,36 @@
+<template>
+  <header class="header py-2.5">
+    <div class="container">
+      <div class="flex justify-between items-center">
+        <div class="flex gap-x-4">
+          <Button variant="link" label="Mevn" as="router-link" to="/" class="p-0!" />
+          <Button
+            v-if="userStore.isAuth"
+            variant="link"
+            label="Тестовая"
+            as="router-link"
+            to="/test"
+            class="p-0!"
+          />
+        </div>
+        <Button v-if="!userStore.isAuth" label="Войти" as="router-link" to="/login" />
+        <Button v-if="userStore.isAuth" label="Выйти" @click="userLogout" />
+      </div>
+    </div>
+  </header>
+</template>
+
+<script setup lang="ts">
+import Button from 'primevue/button'
+import { useUserStore, logout } from '@/entities/user'
+import { useRouter } from 'vue-router'
+
+const userStore = useUserStore()
+const router = useRouter()
+
+const userLogout = async () => {
+  await logout()
+  userStore.logout()
+  router.push('/')
+}
+</script>

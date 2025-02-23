@@ -12,7 +12,7 @@ const authMiddleware = async (
   const token = req.headers.authorization?.split(" ")?.[1];
 
   if (!token) {
-    return next(AppError.Unauthorized("Токен не передан."));
+    return next(AppError.Forbidden("Токен не передан."));
   }
 
   const decoded = (await tokenService.decodeAccessToken(
@@ -20,13 +20,13 @@ const authMiddleware = async (
   )) as UserResponse;
 
   if (!decoded) {
-    return next(AppError.Unauthorized("Невалидный токен."));
+    return next(AppError.Forbidden("Невалидный токен."));
   }
 
   const user = await UserModel.findOne({ email: decoded.email }).lean();
 
   if (!user) {
-    return next(AppError.NotFound("Пользователь не найден."));
+    return next(AppError.Forbidden("Пользователь не найден."));
   }
 
   Object.assign(req, { user: decoded });
