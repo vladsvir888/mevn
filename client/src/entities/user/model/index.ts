@@ -1,12 +1,13 @@
 import { defineStore, acceptHMRUpdate } from 'pinia'
 import { computed, ref } from 'vue'
+import type { UserDetails } from '../config'
 
 export const useUserStore = defineStore('user', () => {
-  const user = ref<string | null>(null)
+  const user = ref<UserDetails | null>(null)
   const token = ref<string | null>(null)
   const isAuth = computed(() => !!user.value)
 
-  const setUser = (value: string | null) => {
+  const setUser = (value: UserDetails | null) => {
     user.value = value
   }
 
@@ -19,7 +20,7 @@ export const useUserStore = defineStore('user', () => {
     const userInfo = localStorage.getItem('user')
 
     if (tokenInfo && userInfo) {
-      setUser(userInfo)
+      setUser(JSON.parse(userInfo))
       setToken(tokenInfo)
     }
   }
@@ -37,6 +38,7 @@ export const useUserStore = defineStore('user', () => {
     setToken,
     loadFromLS,
     logout,
+    user,
     isAuth,
   }
 })

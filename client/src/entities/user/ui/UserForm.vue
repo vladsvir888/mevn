@@ -5,6 +5,42 @@
       <Button :label="buttonText" variant="link" as="router-link" :to="buttonLink" class="p-0!" />
     </div>
     <form class="flex flex-col gap-3" novalidate @submit.prevent="onSubmit">
+      <IftaLabel v-if="isName">
+        <InputText
+          v-model="name.value"
+          id="name"
+          variant="filled"
+          class="w-full"
+          type="text"
+          required
+        />
+        <label for="name">Имя</label>
+        <Message
+          v-if="name.isTouched && !name.isValid"
+          severity="error"
+          variant="simple"
+          size="small"
+          >{{ name.errorMessage }}</Message
+        >
+      </IftaLabel>
+      <IftaLabel v-if="isSurname">
+        <InputText
+          v-model="surname.value"
+          id="surname"
+          variant="filled"
+          class="w-full"
+          type="text"
+          required
+        />
+        <label for="surname">Фамилия</label>
+        <Message
+          v-if="surname.isTouched && !surname.isValid"
+          severity="error"
+          variant="simple"
+          size="small"
+          >{{ surname.errorMessage }}</Message
+        >
+      </IftaLabel>
       <IftaLabel>
         <InputText
           v-model="email.value"
@@ -16,7 +52,7 @@
         />
         <label for="email">Электронная почта</label>
         <Message
-          v-if="email.value && !email.isValid"
+          v-if="email.isTouched && !email.isValid"
           severity="error"
           variant="simple"
           size="small"
@@ -34,7 +70,7 @@
         />
         <label for="password">Пароль</label>
         <Message
-          v-if="password.value && !password.isValid"
+          v-if="password.isTouched && !password.isValid"
           severity="error"
           variant="simple"
           size="small"
@@ -53,7 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, type Ref } from 'vue'
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
 import Button from 'primevue/button'
@@ -61,27 +97,49 @@ import Message from 'primevue/message'
 import IftaLabel from 'primevue/iftalabel'
 import Heading from '@/shared/ui/heading'
 import { useValidation } from '@/shared/lib/use'
+import type { Validator } from '@/shared/config'
 
 interface Props {
   headingText?: string
   buttonText?: string
   buttonLink?: string
+  isName?: boolean
+  isSurname?: boolean
 }
 
 const {
   headingText = 'Вход',
   buttonText = 'Регистрация',
   buttonLink = '/registration',
+  isName = true,
+  isSurname = true,
 } = defineProps<Props>()
 
 const emit = defineEmits(['submit'])
 
+const name = ref({
+  name: 'name',
+  value: '',
+  isValid: false,
+  validationRule: /.+/,
+  errorMessage: 'Обязательное поле.',
+  isTouched: false,
+})
+const surname = ref({
+  name: 'surname',
+  value: '',
+  isValid: false,
+  validationRule: /.+/,
+  errorMessage: 'Обязательное поле.',
+  isTouched: false,
+})
 const email = ref({
   name: 'email',
   value: '',
   isValid: false,
   validationRule: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
   errorMessage: 'Неверный формат электронной почты.',
+  isTouched: false,
 })
 const password = ref({
   name: 'password',
@@ -89,11 +147,26 @@ const password = ref({
   isValid: false,
   validationRule: /^.{6,}$/,
   errorMessage: 'Минимальная длина пароля — 6 символов.',
+  isTouched: false,
 })
-const { result } = useValidation([email, password])
+const inputs = [isName && name, isSurname && surname, email, password].filter(
+  Boolean,
+) as Ref<Validator>[]
+const { result } = useValidation(inputs)
 const isAllowSubmit = computed(() => {
   return result.every((item) => item.value.isValid)
 })
+
+const resetFields = () => {
+  email.value.value = ''
+  email.value.isTouched = false
+  password.value.value = ''
+  password.value.isTouched = false
+  name.value.value = ''
+  name.value.isTouched = false
+  surname.value.value = ''
+  surname.value.isTouched = false
+}
 
 const onSubmit = () => {
   const values: Record<string, string> = {}
@@ -104,8 +177,6 @@ const onSubmit = () => {
   }
 
   emit('submit', values)
-
-  email.value.value = ''
-  password.value.value = ''
+  resetFields()
 }
 </script>

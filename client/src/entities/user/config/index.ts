@@ -1,12 +1,20 @@
 export interface User {
+  name: string
+  surname: string
   email: string
   password: string
 }
 
-export interface UserResponse {
-  accessToken: string
-  createdAt: string
+export interface UserDetails {
+  name: string
+  surname: string
   email: string
-  refreshToken: string
+  createdAt: string
   updatedAt: string
+}
+
+export interface UserResponse {
+  user: UserDetails
+  accessToken: string
+  refreshToken: string
 }

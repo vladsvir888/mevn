@@ -2,14 +2,20 @@
   <header class="header py-2.5">
     <div class="container">
       <div class="flex justify-between items-center">
+        <Button
+          variant="link"
+          label="Mevn"
+          as="router-link"
+          to="/"
+          class="p-0! *:first-letter:italic *:first-letter:font-bold *:first-letter:text-xl"
+        />
         <div class="flex gap-x-4">
-          <Button variant="link" label="Mevn" as="router-link" to="/" class="p-0!" />
           <Button
             v-if="userStore.isAuth"
             variant="link"
-            label="Тестовая"
+            label="Личный кабинет"
             as="router-link"
-            to="/test"
+            to="/personal"
             class="p-0!"
           />
         </div>

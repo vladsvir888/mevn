@@ -9,8 +9,13 @@ class UserController {
     try {
       userService.validationReq(req);
 
-      const { email, password } = req.body as User;
-      const userData = await userService.registration(email, password);
+      const { name, surname, email, password } = req.body as User;
+      const userData = await userService.registration(
+        name,
+        surname,
+        email,
+        password
+      );
 
       res.cookie("refreshToken", userData.refreshToken, {
         maxAge: TimeService.daysToMilliseconds(1),

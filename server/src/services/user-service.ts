@@ -19,7 +19,12 @@ class UserService {
     }
   }
 
-  public async registration(email: string, password: string) {
+  public async registration(
+    name: string,
+    surname: string,
+    email: string,
+    password: string
+  ) {
     const existingUser = await UserModel.findOne({ email }).lean();
 
     if (existingUser) {
@@ -31,6 +36,8 @@ class UserService {
     const salt = Number(process.env.SALT) || 10;
     const hashPassword = await bcrypt.hash(password, salt);
     const newUser = new UserModel({
+      name,
+      surname,
       password: hashPassword,
       email,
     });
@@ -41,7 +48,7 @@ class UserService {
     await tokenService.saveToken(userDto.email, tokens.refreshToken);
 
     return {
-      ...userDto,
+      user: userDto,
       ...tokens,
     };
   }
@@ -70,7 +77,7 @@ class UserService {
     await tokenService.saveToken(userDto.email, tokens.refreshToken);
 
     return {
-      ...userDto,
+      user: userDto,
       ...tokens,
     };
   }

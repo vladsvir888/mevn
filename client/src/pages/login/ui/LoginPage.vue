@@ -1,7 +1,7 @@
 <template>
   <div class="login-page">
     <div class="container">
-      <UserForm @submit="onSubmit" />
+      <UserForm :is-name="false" :is-surname="false" @submit="onSubmit" />
     </div>
   </div>
 </template>
@@ -22,9 +22,9 @@ const onSubmit = async (payload: User) => {
     const result = await login(payload)
 
     localStorage.setItem('token', result.data.accessToken)
-    localStorage.setItem('user', result.data.email)
+    localStorage.setItem('user', JSON.stringify(result.data.user))
 
-    userStore.setUser(result.data.email)
+    userStore.setUser(result.data.user)
     userStore.setToken(result.data.accessToken)
 
     router.push('/')

@@ -10,4 +10,23 @@ const passwordValidator = () => {
   });
 };
 
-export const userValidator = [emailValidator(), passwordValidator()];
+const nameValidator = () => {
+  return body("name", "Обяазательное поле.").isLength({
+    min: 1,
+  });
+};
+
+const surnameValidator = () => {
+  return body("surname", "Обяазательное поле.").isLength({
+    min: 1,
+  });
+};
+
+export const registrationValidator = [
+  nameValidator(),
+  surnameValidator(),
+  emailValidator(),
+  passwordValidator(),
+];
+
+export const loginValidator = [emailValidator(), passwordValidator()];
