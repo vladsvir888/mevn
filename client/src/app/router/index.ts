@@ -1,6 +1,7 @@
 import HomePage from '@/pages/home/ui/HomePage.vue'
 import { RegistrationPage, LoginPage } from '@/pages/login'
 import PersonalPage from '@/pages/personal'
+import NotFoundPage from '@/pages/not-found'
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useUserStore } from '@/entities/user'
 
@@ -24,6 +25,10 @@ const routes: RouteRecordRaw[] = [
     path: '/personal',
     component: PersonalPage,
     meta: { requiresAuth: true },
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    component: NotFoundPage,
   },
 ]
 
