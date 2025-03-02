@@ -2,6 +2,8 @@ import HomePage from '@/pages/home/ui/HomePage.vue'
 import { RegistrationPage, LoginPage } from '@/pages/login'
 import PersonalPage from '@/pages/personal'
 import NotFoundPage from '@/pages/not-found'
+import ArticlesPage from '@/pages/articles'
+import NewArticle from '@/pages/new-article'
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useUserStore } from '@/entities/user'
 
@@ -29,6 +31,16 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/:pathMatch(.*)*',
     component: NotFoundPage,
+  },
+  {
+    path: '/articles',
+    component: ArticlesPage,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/new-article',
+    component: NewArticle,
+    meta: { requiresAuth: true },
   },
 ]
 
