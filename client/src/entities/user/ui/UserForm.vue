@@ -1,10 +1,15 @@
 <template>
-  <div class="auth-form flex flex-col m-auto max-w-96">
+  <div class="auth-form flex flex-col m-auto max-w-96 relative">
     <div class="flex justify-between items-center mb-1">
       <Heading>{{ headingText }}</Heading>
       <Button :label="buttonText" variant="link" as="router-link" :to="buttonLink" class="p-0!" />
     </div>
-    <form class="flex flex-col gap-3" novalidate @submit.prevent="onSubmit">
+    <form
+      class="flex flex-col gap-3"
+      :class="{ 'opacity-50': isLoading }"
+      novalidate
+      @submit.prevent="onSubmit"
+    >
       <IftaLabel v-if="isName">
         <InputText
           v-model="name.value"
@@ -85,6 +90,7 @@
         :disabled="!isAllowSubmit"
       />
     </form>
+    <ProgressSpinner v-if="isLoading" class="absolute! top-[50%] left-[50%] translate-[-50%]" />
   </div>
 </template>
 
@@ -98,6 +104,7 @@ import IftaLabel from 'primevue/iftalabel'
 import Heading from '@/shared/ui/heading'
 import { useValidation } from '@/shared/lib/use'
 import type { Validator } from '@/shared/config'
+import ProgressSpinner from 'primevue/progressspinner'
 
 interface Props {
   headingText?: string
@@ -105,6 +112,7 @@ interface Props {
   buttonLink?: string
   isName?: boolean
   isSurname?: boolean
+  isLoading?: boolean
 }
 
 const {
@@ -113,6 +121,7 @@ const {
   buttonLink = '/registration',
   isName = true,
   isSurname = true,
+  isLoading = false,
 } = defineProps<Props>()
 
 const emit = defineEmits(['submit'])

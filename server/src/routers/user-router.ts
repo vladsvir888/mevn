@@ -16,6 +16,7 @@ userRouter.post(
 userRouter.post("/login", loginValidator, userController.login);
 userRouter.post("/logout", userController.logout);
 userRouter.post("/refresh", userController.refresh);
+userRouter.get("/activate/:link", userController.activate);
 userRouter.get("/test", authMiddleware, userController.test);
 
 export default userRouter;

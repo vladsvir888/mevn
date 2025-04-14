@@ -15,6 +15,7 @@ const errorMiddleware = (
     message: error.message || "Произошла какая-то ошибка",
     timestamp: error.timestamp,
     errors: error.errors,
+    additionalData: error.additionalData,
   });
 };
 

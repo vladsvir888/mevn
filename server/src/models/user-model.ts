@@ -19,6 +19,13 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    activationLink: {
+      type: String,
+    },
+    isActivated: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

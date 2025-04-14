@@ -6,6 +6,8 @@ import AppError from "../exceptions/app-exception";
 import UserDto from "../dto/user-dto";
 import tokenService from "./token-service";
 import { UserResponse } from "../types/user";
+import { randomUUID } from "crypto";
+import mailService from "./mail-service";
 
 class UserService {
   public validationReq(req: Request) {
@@ -35,13 +37,19 @@ class UserService {
 
     const salt = Number(process.env.SALT) || 10;
     const hashPassword = await bcrypt.hash(password, salt);
+    const activationLink = randomUUID();
     const newUser = new UserModel({
       name,
       surname,
       password: hashPassword,
       email,
+      activationLink,
     });
     const savedUser = await newUser.save();
+    await mailService.sendActivationMail(
+      email,
+      `${process.env.API_URL}/auth/activate/${activationLink}`
+    );
     const userDto = new UserDto(savedUser);
 
     const tokens = await tokenService.getTokens({ ...userDto });
@@ -60,6 +68,10 @@ class UserService {
       throw AppError.Unauthorized(
         "Пользователь с таким адресом электронной почты не найден."
       );
+    }
+
+    if (!existingUser.isActivated) {
+      throw AppError.Unauthorized("Вы не активировали аккаунт.");
     }
 
     const isMatchPassword = await bcrypt.compare(
@@ -108,6 +120,17 @@ class UserService {
       ...userDto,
       ...tokens,
     };
+  }
+
+  async activate(activationLink: string) {
+    const user = await UserModel.findOne({ activationLink });
+
+    if (!user) {
+      throw AppError.BadRequest("Неккоректная ссылка активации");
+    }
+
+    user.isActivated = true;
+    await user.save();
   }
 }
 

@@ -1,4 +1,5 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios'
+import { type Error } from '../config'
 
 interface CustomInternalAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean
@@ -19,8 +20,13 @@ $axios.interceptors.response.use(
   (config) => config,
   async (error: AxiosError) => {
     const originalRequest = error.config as CustomInternalAxiosRequestConfig
+    const data = error.response?.data as Error
 
-    if (error.response?.status === 403 && !originalRequest?._retry) {
+    if (
+      error.response?.status === 401 &&
+      data.additionalData?.isNeedRefresh &&
+      !originalRequest?._retry
+    ) {
       originalRequest._retry = true
 
       try {

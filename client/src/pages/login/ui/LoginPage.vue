@@ -1,7 +1,7 @@
 <template>
   <div class="login-page">
     <div class="container">
-      <UserForm :is-name="false" :is-surname="false" @submit="onSubmit" />
+      <UserForm :is-name="false" :is-surname="false" :is-loading="isLoading" @submit="onSubmit" />
     </div>
   </div>
 </template>
@@ -12,13 +12,18 @@ import { useToast } from 'primevue/usetoast'
 import type { Error } from '@/shared/config'
 import { login, UserForm, useUserStore, type User } from '@/entities/user'
 import { useRouter } from 'vue-router'
+import { ref } from 'vue'
 
 const userStore = useUserStore()
 const router = useRouter()
 const toast = useToast()
 
+const isLoading = ref(false)
+
 const onSubmit = async (payload: User) => {
   try {
+    isLoading.value = true
+
     const result = await login(payload)
 
     localStorage.setItem('token', result.data.accessToken)
@@ -37,6 +42,8 @@ const onSubmit = async (payload: User) => {
       detail: err.response?.data.message,
       life: 3000,
     })
+  } finally {
+    isLoading.value = false
   }
 }
 </script>

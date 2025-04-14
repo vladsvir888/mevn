@@ -11,4 +11,5 @@ export interface UserResponse {
   email: string;
   createdAt: Date;
   updatedAt: Date;
+  isActivated: boolean;
 }

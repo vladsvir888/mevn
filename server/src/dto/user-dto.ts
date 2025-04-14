@@ -6,6 +6,7 @@ class UserDto {
   email: string;
   createdAt: Date;
   updatedAt: Date;
+  isActivated: boolean;
 
   constructor(user: UserResponse) {
     this.name = user.name;
@@ -13,6 +14,7 @@ class UserDto {
     this.email = user.email;
     this.createdAt = user.createdAt;
     this.updatedAt = user.updatedAt;
+    this.isActivated = user.isActivated;
   }
 }
 

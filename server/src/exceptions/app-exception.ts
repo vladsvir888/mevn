@@ -1,16 +1,27 @@
 import { StatusCode } from "../types/status-code";
 
+interface AdditionalData {
+  isNeedRefresh?: boolean;
+}
+
 class AppError extends Error {
   statusCode: number;
   timestamp: string;
   errors: unknown[];
+  additionalData?: AdditionalData;
 
-  constructor(statusCode: number, message: string, errors: unknown[] = []) {
+  constructor(
+    statusCode: number,
+    message: string,
+    errors: unknown[] = [],
+    additionalData?: AdditionalData
+  ) {
     super(message);
     this.name = "AppError";
     this.statusCode = statusCode;
     this.errors = errors;
     this.timestamp = new Date().toISOString();
+    this.additionalData = additionalData;
     Error.captureStackTrace(this, AppError);
   }
 
@@ -22,16 +33,8 @@ class AppError extends Error {
     return new AppError(StatusCode.CONFLICT, message);
   }
 
-  public static Unauthorized(message: string) {
-    return new AppError(StatusCode.UNAUTHORIZED, message);
-  }
-
-  public static NotFound(message: string) {
-    return new AppError(StatusCode.NOT_FOUND, message);
-  }
-
-  public static Forbidden(message: string) {
-    return new AppError(StatusCode.FORBIDDEN, message);
+  public static Unauthorized(message: string, additionalData?: AdditionalData) {
+    return new AppError(StatusCode.UNAUTHORIZED, message, [], additionalData);
   }
 }
 
