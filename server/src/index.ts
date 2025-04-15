@@ -5,6 +5,8 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import errorMiddleware from "./middlewares/error-middleware";
 import userRouter from "./routers/user-router";
+import articleRouter from "./routers/article-router";
+import fileUpload from "express-fileupload";
 
 const PORT = process.env.PORT || 8000;
 
@@ -18,7 +20,9 @@ app.use(
     credentials: true,
   })
 );
+app.use(fileUpload());
 app.use("/api/auth", userRouter);
+app.use("/api/article", articleRouter);
 app.use(errorMiddleware);
 
 const bootstrap = () => {

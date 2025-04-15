@@ -31,8 +31,7 @@ const onSubmit = async (payload: User) => {
     await registration(payload)
     router.push('/')
     toast.add({
-      severity: 'success',
-      summary: 'Ошибка',
+      severity: 'warn',
       detail: 'На вашу почту отправлено письмо для активации аккаунта',
       life: 3000,
     })

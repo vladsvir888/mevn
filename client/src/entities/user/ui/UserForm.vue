@@ -1,12 +1,12 @@
 <template>
-  <div class="auth-form flex flex-col m-auto max-w-96 relative">
+  <div class="auth-form flex flex-col m-auto max-w-md relative">
     <div class="flex justify-between items-center mb-1">
       <Heading>{{ headingText }}</Heading>
       <Button :label="buttonText" variant="link" as="router-link" :to="buttonLink" class="p-0!" />
     </div>
     <form
       class="flex flex-col gap-3"
-      :class="{ 'opacity-50': isLoading }"
+      :class="{ 'opacity-50': isLoading, 'pointer-events-none': isLoading }"
       novalidate
       @submit.prevent="onSubmit"
     >
@@ -19,7 +19,7 @@
           type="text"
           required
         />
-        <label for="name">Имя</label>
+        <label for="name">Имя*</label>
         <Message
           v-if="name.isTouched && !name.isValid"
           severity="error"
@@ -37,7 +37,7 @@
           type="text"
           required
         />
-        <label for="surname">Фамилия</label>
+        <label for="surname">Фамилия*</label>
         <Message
           v-if="surname.isTouched && !surname.isValid"
           severity="error"
@@ -55,7 +55,7 @@
           type="email"
           required
         />
-        <label for="email">Электронная почта</label>
+        <label for="email">Электронная почта*</label>
         <Message
           v-if="email.isTouched && !email.isValid"
           severity="error"
@@ -73,7 +73,7 @@
           toggleMask
           required
         />
-        <label for="password">Пароль</label>
+        <label for="password">Пароль*</label>
         <Message
           v-if="password.isTouched && !password.isValid"
           severity="error"
@@ -89,6 +89,7 @@
         class="w-full"
         :disabled="!isAllowSubmit"
       />
+      <RequiredFieldsAlert class="flex justify-end" />
     </form>
     <ProgressSpinner v-if="isLoading" class="absolute! top-[50%] left-[50%] translate-[-50%]" />
   </div>
@@ -105,6 +106,7 @@ import Heading from '@/shared/ui/heading'
 import { useValidation } from '@/shared/lib/use'
 import type { Validator } from '@/shared/config'
 import ProgressSpinner from 'primevue/progressspinner'
+import RequiredFieldsAlert from '@/shared/ui/required-fields-alert'
 
 interface Props {
   headingText?: string

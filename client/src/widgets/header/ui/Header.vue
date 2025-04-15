@@ -1,5 +1,5 @@
 <template>
-  <header class="header py-2.5">
+  <header class="header py-4">
     <div class="container">
       <div class="flex justify-between items-center">
         <Logo />

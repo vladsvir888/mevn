@@ -25,3 +25,7 @@
 .router-link-active {
   text-decoration: underline;
 }
+
+.p-toast-summary:empty {
+  display: none;
+}
