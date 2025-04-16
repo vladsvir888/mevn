@@ -1,6 +1,6 @@
 <template>
   <Header />
-  <main>
+  <main class="pb-5">
     <RouterView v-slot="{ Component }">
       <template v-if="Component">
         <Suspense timeout="0">

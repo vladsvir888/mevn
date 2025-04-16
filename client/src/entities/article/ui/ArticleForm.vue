@@ -11,7 +11,7 @@
           name="file"
           mode="basic"
           accept="image/*"
-          chooseLabel="Изображение*"
+          choose-label="Изображение*"
           @select="handleSelectFile"
         />
       </div>
@@ -36,9 +36,9 @@
       <IftaLabel v-if="articleTypes.length">
         <Select
           v-model="type.value"
-          inputId="type"
+          input-id="type"
           :options="articleTypes"
-          optionLabel="name"
+          option-label="name"
           class="w-full"
           variant="filled"
         />

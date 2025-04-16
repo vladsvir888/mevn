@@ -6,6 +6,12 @@ export interface ArticleType {
 export interface Article {
   title: string
   description: string
-  file: File
+  file: File | string
   type: ArticleType
+}
+
+export interface ExtendedArticle extends Article {
+  _id: string
+  createdAt: Date
+  updatedAt: Date
 }

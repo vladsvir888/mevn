@@ -43,6 +43,15 @@ class ArticleController {
       next(error);
     }
   }
+
+  public async list(req: Request, res: Response, next: NextFunction) {
+    try {
+      const articleList = await ArticleModel.find({}).lean();
+      res.status(StatusCode.OK).json(articleList);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 const articleController = new ArticleController();
