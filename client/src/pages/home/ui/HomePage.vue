@@ -1,16 +1,19 @@
 <template>
   <div class="home-page">
     <div class="container">
-      <div class="overflow-x-auto pb-2.5">
-        <SelectButton
-          v-if="articleTypes.length"
-          v-model="articleType"
-          :options="articleTypes"
-          option-label="name"
-          :allow-empty="false"
-        />
-      </div>
-      <ArticleCardList v-if="filteredArticleList.length" :list="filteredArticleList" />
+      <template v-if="articleList.length">
+        <div class="overflow-x-auto pb-2.5">
+          <SelectButton
+            v-if="articleTypes.length"
+            v-model="articleType"
+            :options="articleTypes"
+            option-label="name"
+            :allow-empty="false"
+          />
+        </div>
+        <ArticleCardList v-if="filteredArticleList.length" :list="filteredArticleList" />
+        <p v-else>По заданному фильтру статей не найдено</p>
+      </template>
       <p v-else>Статей не найдено</p>
     </div>
   </div>

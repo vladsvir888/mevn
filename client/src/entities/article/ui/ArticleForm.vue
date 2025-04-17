@@ -6,15 +6,7 @@
       novalidate
       @submit.prevent="onSubmit"
     >
-      <div class="flex">
-        <FileUpload
-          name="file"
-          mode="basic"
-          accept="image/*"
-          choose-label="Изображение*"
-          @select="handleSelectFile"
-        />
-      </div>
+      <FileInput @select="handleSelectFile" ref="fileInput" />
       <IftaLabel>
         <InputText
           v-model="title.value"
@@ -74,20 +66,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, type Ref } from 'vue'
+import { ref, computed, type Ref, useTemplateRef } from 'vue'
 import Message from 'primevue/message'
 import IftaLabel from 'primevue/iftalabel'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import Select from 'primevue/select'
 import Button from 'primevue/button'
-import FileUpload, { type FileUploadSelectEvent } from 'primevue/fileupload'
 import ProgressSpinner from 'primevue/progressspinner'
 import { useValidation } from '@/shared/lib/use'
 import type { Validator } from '@/shared/config'
 import type { ArticleType } from '../config'
 import { types } from '../api/types'
 import RequiredFieldsAlert from '@/shared/ui/required-fields-alert'
+import FileInput from '@/shared/ui/file-input'
 
 interface Props {
   isLoading?: boolean
@@ -120,6 +112,8 @@ const type = ref({
   validationRule: /.+/,
   isTouched: false,
 })
+
+const fileInput = useTemplateRef('fileInput')
 const file = ref({
   name: 'file',
   value: null,
@@ -127,8 +121,8 @@ const file = ref({
   validationRule: /.+/,
   isTouched: false,
 })
-const handleSelectFile = (event: FileUploadSelectEvent) => {
-  file.value.value = event.files[0]
+const handleSelectFile = (payload: any) => {
+  file.value.value = payload
 }
 
 const articleTypes = ref<ArticleType[]>([])
@@ -162,6 +156,7 @@ const resetFields = () => {
   type.value.isTouched = false
   file.value.value = null
   file.value.isTouched = false
+  fileInput.value?.removeFile()
 }
 
 const onSubmit = () => {
