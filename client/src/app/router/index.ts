@@ -4,6 +4,7 @@ import PersonalPage from '@/pages/personal'
 import NotFoundPage from '@/pages/not-found'
 import ArticlesPage from '@/pages/articles'
 import NewArticle from '@/pages/new-article'
+import AllArticlesPage from '@/pages/all-articles'
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useUserStore } from '@/entities/user'
 
@@ -35,6 +36,11 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/articles',
     component: ArticlesPage,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/all-articles',
+    component: AllArticlesPage,
     meta: { requiresAuth: true },
   },
   {

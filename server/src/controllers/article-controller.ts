@@ -5,6 +5,7 @@ import fileService from "../services/file-service";
 import ArticleModel from "../models/article-model";
 import ArticleTypeModel from "../models/article-type-model";
 import AppError from "../exceptions/app-exception";
+import helperBoxService from "../services/helper-box-service";
 
 class ArticleController {
   public async types(req: Request, res: Response, next: NextFunction) {
@@ -46,8 +47,35 @@ class ArticleController {
 
   public async list(req: Request, res: Response, next: NextFunction) {
     try {
-      const articleList = await ArticleModel.find({}).lean();
-      res.status(StatusCode.OK).json(articleList);
+      const LIMIT = 8;
+      const { userEmail } = req.body as { userEmail: string; page: number };
+
+      const filter = userEmail ? { userEmail } : {};
+
+      const count = await ArticleModel.countDocuments(filter);
+
+      const { pages, page, skip, first } = helperBoxService.paginationData({
+        count,
+        body: req.body,
+        limit: LIMIT,
+      });
+
+      const articleList = await ArticleModel.find(filter)
+        .limit(LIMIT)
+        .skip(skip)
+        .lean();
+
+      const data = {
+        elements: articleList,
+        pages,
+        page,
+        limit: LIMIT,
+        skip,
+        count,
+        first,
+      };
+
+      res.status(StatusCode.OK).json(data);
     } catch (error) {
       next(error);
     }

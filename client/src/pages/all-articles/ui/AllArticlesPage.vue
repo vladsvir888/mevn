@@ -23,13 +23,11 @@
 <script setup lang="ts">
 import { onUnmounted } from 'vue'
 import { ArticleCardList, useArticleList } from '@/entities/article'
-import { useUserStore } from '@/entities/user'
 import Paginator from 'primevue/paginator'
 import ProgressSpinner from 'primevue/progressspinner'
 
-const userStore = useUserStore()
 const { first, limit, totalRecords, pages, articleList, handlePage, isLoading, unwatch } =
-  await useArticleList({ userEmail: userStore.user?.email })
+  await useArticleList()
 
 onUnmounted(unwatch)
 </script>

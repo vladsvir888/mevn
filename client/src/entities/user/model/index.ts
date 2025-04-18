@@ -6,6 +6,13 @@ export const useUserStore = defineStore('user', () => {
   const user = ref<UserDetails | null>(null)
   const token = ref<string | null>(null)
   const isAuth = computed(() => !!user.value)
+  const fullName = computed(() => {
+    if (!user.value) {
+      return null
+    }
+
+    return `${user.value.name} ${user.value.surname}`
+  })
 
   const setUser = (value: UserDetails | null) => {
     user.value = value
@@ -40,6 +47,7 @@ export const useUserStore = defineStore('user', () => {
     logout,
     user,
     isAuth,
+    fullName,
   }
 })
 

@@ -14,4 +14,5 @@ export interface ExtendedArticle extends Article {
   _id: string
   createdAt: Date
   updatedAt: Date
+  userEmail: string
 }

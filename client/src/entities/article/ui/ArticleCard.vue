@@ -22,7 +22,7 @@
     </template>
     <template #footer>
       <Button
-        v-if="userStore.user"
+        v-if="userStore.user?.email === card.userEmail"
         label="Больше"
         class="w-full"
         as="router-link"

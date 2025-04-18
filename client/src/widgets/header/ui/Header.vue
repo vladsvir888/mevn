@@ -3,13 +3,13 @@
     <div class="container">
       <div class="flex justify-between items-center">
         <Logo />
-        <Nav v-if="userStore.isAuth" class="hidden sm:flex gap-x-4" />
+        <Nav v-if="userStore.isAuth" class="hidden md:flex gap-x-4" />
         <div class="flex items-center gap-2.5">
           <Button
             v-if="userStore.isAuth"
             icon="pi pi-bars"
             aria-label="Открыть"
-            class="sm:hidden! flex"
+            class="md:hidden! flex"
             @click="menuRef?.showMenu"
           />
           <Button v-if="!userStore.isAuth" label="Войти" as="router-link" to="/login" />
