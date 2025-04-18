@@ -7,7 +7,7 @@ interface PaginationData {
 }
 
 class HelperBoxService {
-  public paginationData = ({ count, limit, body }: PaginationData) => {
+  public paginationData({ count, limit, body }: PaginationData) {
     let page = body.page ?? 1;
     let skip = 0;
     const pages = Math.ceil(count / limit);
@@ -28,7 +28,11 @@ class HelperBoxService {
       skip,
       first,
     };
-  };
+  }
+
+  public daysToMilliseconds(days: number) {
+    return days * 24 * 60 * 60 * 1000;
+  }
 }
 
 const helperBoxService = new HelperBoxService();

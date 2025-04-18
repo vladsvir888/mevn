@@ -135,7 +135,7 @@ const name = ref({
   validationRule: /.+/,
   errorMessage: 'Обязательное поле.',
   isTouched: false,
-})
+}) as Ref<Validator>
 const surname = ref({
   name: 'surname',
   value: '',
@@ -143,7 +143,7 @@ const surname = ref({
   validationRule: /.+/,
   errorMessage: 'Обязательное поле.',
   isTouched: false,
-})
+}) as Ref<Validator>
 const email = ref({
   name: 'email',
   value: '',
@@ -151,7 +151,7 @@ const email = ref({
   validationRule: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
   errorMessage: 'Неверный формат электронной почты.',
   isTouched: false,
-})
+}) as Ref<Validator>
 const password = ref({
   name: 'password',
   value: '',
@@ -159,7 +159,7 @@ const password = ref({
   validationRule: /^.{6,}$/,
   errorMessage: 'Минимальная длина пароля — 6 символов.',
   isTouched: false,
-})
+}) as Ref<Validator>
 const inputs = [isName && name, isSurname && surname, email, password].filter(
   Boolean,
 ) as Ref<Validator>[]

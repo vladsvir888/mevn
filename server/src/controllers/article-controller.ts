@@ -7,6 +7,9 @@ import ArticleTypeModel from "../models/article-type-model";
 import AppError from "../exceptions/app-exception";
 import helperBoxService from "../services/helper-box-service";
 
+const PAGINATION_LIMIT = 8;
+const FILE_DIR = "/images/articles";
+
 class ArticleController {
   public async types(req: Request, res: Response, next: NextFunction) {
     try {
@@ -24,8 +27,7 @@ class ArticleController {
       }
 
       const file = req.files.file as UploadedFile;
-      const fileDir = "/images/articles";
-      const resultFileSaving = await fileService.save(file, fileDir);
+      const resultFileSaving = await fileService.save(file, FILE_DIR);
 
       if (!resultFileSaving) {
         throw AppError.BadRequest(
@@ -35,7 +37,7 @@ class ArticleController {
 
       const articleData = {
         ...JSON.parse(req.body.data),
-        file: `${fileDir}/${file.name}`,
+        file: `${FILE_DIR}/${file.name}`,
       };
 
       await ArticleModel.insertMany([articleData]);
@@ -45,9 +47,43 @@ class ArticleController {
     }
   }
 
+  public async update(req: Request, res: Response, next: NextFunction) {
+    try {
+      const reqData = JSON.parse(req.body.data);
+      const article = await ArticleModel.findById(reqData.id).select({}).lean();
+
+      if (!article) {
+        throw AppError.BadRequest("Статья не найдена");
+      }
+
+      const articleFileName = article.file.split("/").pop() as string;
+      const reqFile = req?.files?.file as UploadedFile;
+      const reqFileName = reqFile.name;
+
+      if (reqFileName !== articleFileName) {
+        const resultFileSaving = await fileService.save(reqFile, FILE_DIR);
+
+        if (!resultFileSaving) {
+          throw AppError.BadRequest(
+            "Произошла ошибка в результате загрузки файла"
+          );
+        }
+      }
+
+      const articleData = {
+        ...reqData,
+        file: `${FILE_DIR}/${reqFileName}`,
+      };
+
+      await ArticleModel.updateOne({ _id: reqData.id }, articleData);
+      res.status(StatusCode.OK).json({ status: "success" });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   public async list(req: Request, res: Response, next: NextFunction) {
     try {
-      const LIMIT = 8;
       const { userEmail } = req.body as { userEmail: string; page: number };
 
       const filter = userEmail ? { userEmail } : {};
@@ -57,11 +93,11 @@ class ArticleController {
       const { pages, page, skip, first } = helperBoxService.paginationData({
         count,
         body: req.body,
-        limit: LIMIT,
+        limit: PAGINATION_LIMIT,
       });
 
       const articleList = await ArticleModel.find(filter)
-        .limit(LIMIT)
+        .limit(PAGINATION_LIMIT)
         .skip(skip)
         .lean();
 
@@ -69,13 +105,31 @@ class ArticleController {
         elements: articleList,
         pages,
         page,
-        limit: LIMIT,
+        limit: PAGINATION_LIMIT,
         skip,
         count,
         first,
       };
 
       res.status(StatusCode.OK).json(data);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public async article(req: Request, res: Response, next: NextFunction) {
+    try {
+      const filter = {
+        _id: req.params.id,
+        userEmail: req.body.userEmail,
+      };
+      const article = await ArticleModel.findOne(filter).lean();
+
+      if (!article) {
+        throw AppError.BadRequest("Статья не найдена");
+      }
+
+      res.status(StatusCode.OK).json(article);
     } catch (error) {
       next(error);
     }

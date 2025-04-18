@@ -1,12 +1,12 @@
 <template>
   <div class="relative">
     <form
-      class="article-form flex flex-col m-auto gap-3 max-w-2xl"
+      class="article-form flex flex-col m-auto gap-3"
       :class="{ 'opacity-50': isLoading, 'pointer-events-none': isLoading }"
       novalidate
       @submit.prevent="onSubmit"
     >
-      <FileInput @select="handleSelectFile" ref="fileInput" />
+      <FileInput @select="handleSelectFile" ref="fileInput" :label="fileLabel" />
       <IftaLabel>
         <InputText
           v-model="title.value"
@@ -31,6 +31,7 @@
           input-id="type"
           :options="articleTypes"
           option-label="name"
+          option-value="code"
           class="w-full"
           variant="filled"
         />
@@ -67,6 +68,7 @@
 
 <script setup lang="ts">
 import { ref, computed, type Ref, useTemplateRef } from 'vue'
+import axios from 'axios'
 import Message from 'primevue/message'
 import IftaLabel from 'primevue/iftalabel'
 import InputText from 'primevue/inputtext'
@@ -76,42 +78,43 @@ import Button from 'primevue/button'
 import ProgressSpinner from 'primevue/progressspinner'
 import { useValidation } from '@/shared/lib/use'
 import type { Validator } from '@/shared/config'
-import type { ArticleType } from '../config'
+import type { ArticleType, ExtendedArticle } from '../config'
 import { types } from '../api/types'
 import RequiredFieldsAlert from '@/shared/ui/required-fields-alert'
 import FileInput from '@/shared/ui/file-input'
 
 interface Props {
   isLoading?: boolean
+  form?: ExtendedArticle
 }
 
-const { isLoading = false } = defineProps<Props>()
+const { isLoading = false, form } = defineProps<Props>()
 
 const emit = defineEmits(['submit'])
 
 const title = ref({
   name: 'title',
-  value: '',
+  value: form?.title ?? '',
   isValid: false,
   validationRule: /.+/,
   errorMessage: 'Обязательное поле.',
   isTouched: false,
-})
+}) as Ref<Validator>
 const description = ref({
   name: 'description',
-  value: '',
+  value: form?.description ?? '',
   isValid: false,
   validationRule: /.+/,
   errorMessage: 'Обязательное поле.',
   isTouched: false,
-})
+}) as Ref<Validator>
 const type = ref({
   name: 'type',
-  value: null,
+  value: form?.type?.code ?? null,
   isValid: false,
   validationRule: /.+/,
   isTouched: false,
-})
+}) as Ref<Validator>
 
 const fileInput = useTemplateRef('fileInput')
 const file = ref({
@@ -120,10 +123,36 @@ const file = ref({
   isValid: false,
   validationRule: /.+/,
   isTouched: false,
-})
-const handleSelectFile = (payload: any) => {
+}) as Ref<Validator>
+const fileLabel = ref<string | undefined>(undefined)
+const handleSelectFile = (payload: File | null) => {
+  if (!payload) {
+    fileLabel.value = ''
+  }
+
   file.value.value = payload
 }
+const prepareFile = async () => {
+  if (!form?.file || typeof form.file === 'object') {
+    return
+  }
+
+  let imageBlob = null
+
+  try {
+    imageBlob = (await axios.get(form.file, { responseType: 'blob' })).data
+  } catch (error) {
+    console.log(error)
+  }
+
+  const fileName = form.file.split('/').pop() as string
+  const preparedFile = new File([imageBlob].filter(Boolean), fileName)
+  const dataTransfer = new DataTransfer()
+  dataTransfer.items.add(preparedFile)
+  fileLabel.value = fileName
+  file.value.value = dataTransfer.files[0]
+}
+await prepareFile()
 
 const articleTypes = ref<ArticleType[]>([])
 const getArticleTypes = async () => {
@@ -160,14 +189,23 @@ const resetFields = () => {
 }
 
 const onSubmit = () => {
-  const values: Record<string, string> = {}
+  const values: Record<string, unknown> = {}
 
   for (const item of result) {
     const { name, value } = item.value
-    values[name] = value
+
+    if (name === 'type') {
+      const foundItem = articleTypes.value.find((item) => item.code === value)
+      values[name] = foundItem
+    } else {
+      values[name] = value
+    }
   }
 
   emit('submit', values)
-  resetFields()
+
+  if (!form) {
+    resetFields()
+  }
 }
 </script>

@@ -4,7 +4,7 @@
       class="relative flex items-center gap-2 p-2.5 border border-slate-300 hover:border-slate-400 rounded-md text-slate-500 transition w-full"
     >
       <span class="pi pi-paperclip text-current" />
-      <label :for="id">{{ text }}</label>
+      <label :for="id">{{ localLabel }}</label>
       <input
         :id
         ref="file"
@@ -26,20 +26,24 @@ import { ref, useId } from 'vue'
 import Button from 'primevue/button'
 
 interface Props {
-  text?: string
+  label?: string
 }
 
-const { text = 'Прикрепить изображение*' } = defineProps<Props>()
+const LABEL_TEXT = 'Прикрепить изображение*'
+
+const { label = LABEL_TEXT } = defineProps<Props>()
 
 const emit = defineEmits(['select'])
 
 const id = useId()
 
+const localLabel = ref(label)
 const file = ref<HTMLInputElement | null>(null)
 const src = ref<string | null>(null)
 const removeFile = () => {
   src.value = null
   file.value = null
+  localLabel.value = LABEL_TEXT
   emit('select', null)
 }
 const selectFile = (event: Event) => {
@@ -56,6 +60,7 @@ const selectFile = (event: Event) => {
   }
 
   const file = files[0]
+  localLabel.value = file.name
   const reader = new FileReader()
   reader.onload = async () => {
     if (typeof reader.result === 'string') {

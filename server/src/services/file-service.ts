@@ -2,7 +2,7 @@ import path from "path";
 import { UploadedFile } from "express-fileupload";
 
 class FileService {
-  async save(file: UploadedFile, pathToSave: string) {
+  public async save(file: UploadedFile, pathToSave: string) {
     try {
       const uploadPath = path.join(
         process.cwd(),

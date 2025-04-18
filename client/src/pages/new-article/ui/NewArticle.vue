@@ -1,7 +1,7 @@
 <template>
   <div class="new-article">
     <div class="container">
-      <ArticleForm :is-loading="isLoading" @submit="onSubmit" />
+      <ArticleForm :is-loading="isLoading" @submit="onSubmit" class="max-w-2xl m-auto" />
     </div>
   </div>
 </template>
