@@ -42,7 +42,9 @@ const file = ref<HTMLInputElement | null>(null)
 const src = ref<string | null>(null)
 const removeFile = () => {
   src.value = null
-  file.value = null
+  if (file.value) {
+    file.value.value = ''
+  }
   localLabel.value = LABEL_TEXT
   emit('select', null)
 }

@@ -1,13 +1,16 @@
 <template>
   <div class="article-page">
     <div class="container">
-      <Button
-        label="Назад"
-        icon="pi pi-arrow-left"
-        size="small"
-        class="mb-2.5"
-        @click="router.back"
-      />
+      <div class="flex mb-2.5 gap-x-1.5">
+        <Button label="Назад" icon="pi pi-arrow-left" size="small" @click="router.back" />
+        <Button
+          label="Удалить"
+          icon="pi pi-trash"
+          size="small"
+          :loading="isLoadingRemoving"
+          @click="removeArticle"
+        />
+      </div>
       <div v-if="article" class="grid md:grid-cols-[400px_1fr] items-start gap-5">
         <ArticleCard :card="article" />
         <ArticleForm :form="article" :is-loading="isLoading" @submit="onSubmit" />
@@ -29,6 +32,7 @@ import {
   type Article,
   type ExtendedArticle,
   update,
+  remove,
 } from '@/entities/article'
 import { useUserStore } from '@/entities/user'
 
@@ -51,6 +55,7 @@ const getArticleById = async () => {
 await getArticleById()
 
 const isLoading = ref(false)
+const isLoadingRemoving = ref(false)
 
 const onSubmit = async (payload: Article) => {
   try {
@@ -72,6 +77,30 @@ const onSubmit = async (payload: Article) => {
     })
   } finally {
     isLoading.value = false
+  }
+}
+
+const removeArticle = async () => {
+  try {
+    isLoadingRemoving.value = true
+    await remove(paramId)
+    toast.add({
+      severity: 'success',
+      detail: 'Статья удалена',
+      life: 3000,
+    })
+    router.push('/articles')
+  } catch (error) {
+    const err = error as AxiosError<Error>
+
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка',
+      detail: err.response?.data.message,
+      life: 3000,
+    })
+  } finally {
+    isLoadingRemoving.value = false
   }
 }
 </script>

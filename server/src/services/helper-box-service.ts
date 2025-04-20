@@ -1,14 +1,12 @@
 interface PaginationData {
   count: number;
   limit: number;
-  body: {
-    page: number;
-  };
+  reqPage: number;
 }
 
 class HelperBoxService {
-  public paginationData({ count, limit, body }: PaginationData) {
-    let page = body.page ?? 1;
+  public paginationData({ count, limit, reqPage }: PaginationData) {
+    let page = reqPage ?? 1;
     let skip = 0;
     const pages = Math.ceil(count / limit);
 

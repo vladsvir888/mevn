@@ -1,14 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCode } from "../types/status-code";
 import { UploadedFile } from "express-fileupload";
-import fileService from "../services/file-service";
-import ArticleModel from "../models/article-model";
 import ArticleTypeModel from "../models/article-type-model";
 import AppError from "../exceptions/app-exception";
-import helperBoxService from "../services/helper-box-service";
-
-const PAGINATION_LIMIT = 8;
-const FILE_DIR = "/images/articles";
+import articleService from "../services/article-service";
 
 class ArticleController {
   public async types(req: Request, res: Response, next: NextFunction) {
@@ -27,20 +22,10 @@ class ArticleController {
       }
 
       const file = req.files.file as UploadedFile;
-      const resultFileSaving = await fileService.save(file, FILE_DIR);
+      const data = JSON.parse(req.body.data);
 
-      if (!resultFileSaving) {
-        throw AppError.BadRequest(
-          "Произошла ошибка в результате загрузки файла"
-        );
-      }
+      await articleService.saveArticle(file, data);
 
-      const articleData = {
-        ...JSON.parse(req.body.data),
-        file: `${FILE_DIR}/${file.name}`,
-      };
-
-      await ArticleModel.insertMany([articleData]);
       res.status(StatusCode.OK).json({ status: "success" });
     } catch (error) {
       next(error);
@@ -49,33 +34,31 @@ class ArticleController {
 
   public async update(req: Request, res: Response, next: NextFunction) {
     try {
-      const reqData = JSON.parse(req.body.data);
-      const article = await ArticleModel.findById(reqData.id).select({}).lean();
-
-      if (!article) {
-        throw AppError.BadRequest("Статья не найдена");
+      if (!req.files || Object.keys(req.files).length === 0) {
+        throw AppError.BadRequest("Файл не загружен");
       }
 
-      const articleFileName = article.file.split("/").pop() as string;
-      const reqFile = req?.files?.file as UploadedFile;
-      const reqFileName = reqFile.name;
+      const file = req.files.file as UploadedFile;
+      const data = JSON.parse(req.body.data);
 
-      if (reqFileName !== articleFileName) {
-        const resultFileSaving = await fileService.save(reqFile, FILE_DIR);
+      await articleService.updateArticle(file, data);
 
-        if (!resultFileSaving) {
-          throw AppError.BadRequest(
-            "Произошла ошибка в результате загрузки файла"
-          );
-        }
+      res.status(StatusCode.OK).json({ status: "success" });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public async remove(req: Request, res: Response, next: NextFunction) {
+    try {
+      const articleId = req.body.id;
+
+      if (!articleId) {
+        throw AppError.BadRequest("Id статьи не передан");
       }
 
-      const articleData = {
-        ...reqData,
-        file: `${FILE_DIR}/${reqFileName}`,
-      };
+      await articleService.removeArticle(articleId);
 
-      await ArticleModel.updateOne({ _id: reqData.id }, articleData);
       res.status(StatusCode.OK).json({ status: "success" });
     } catch (error) {
       next(error);
@@ -84,33 +67,7 @@ class ArticleController {
 
   public async list(req: Request, res: Response, next: NextFunction) {
     try {
-      const { userEmail } = req.body as { userEmail: string; page: number };
-
-      const filter = userEmail ? { userEmail } : {};
-
-      const count = await ArticleModel.countDocuments(filter);
-
-      const { pages, page, skip, first } = helperBoxService.paginationData({
-        count,
-        body: req.body,
-        limit: PAGINATION_LIMIT,
-      });
-
-      const articleList = await ArticleModel.find(filter)
-        .limit(PAGINATION_LIMIT)
-        .skip(skip)
-        .lean();
-
-      const data = {
-        elements: articleList,
-        pages,
-        page,
-        limit: PAGINATION_LIMIT,
-        skip,
-        count,
-        first,
-      };
-
+      const data = await articleService.getArticles(req.body);
       res.status(StatusCode.OK).json(data);
     } catch (error) {
       next(error);
@@ -119,15 +76,19 @@ class ArticleController {
 
   public async article(req: Request, res: Response, next: NextFunction) {
     try {
-      const filter = {
-        _id: req.params.id,
-        userEmail: req.body.userEmail,
-      };
-      const article = await ArticleModel.findOne(filter).lean();
+      const articleId = req.params.id;
 
-      if (!article) {
-        throw AppError.BadRequest("Статья не найдена");
+      if (!articleId) {
+        throw AppError.BadRequest("Id статьи не передан");
       }
+
+      const userEmail = req.body.userEmail;
+
+      if (!userEmail) {
+        throw AppError.BadRequest("Email пользователя не передан");
+      }
+
+      const article = await articleService.getArticle(articleId, userEmail);
 
       res.status(StatusCode.OK).json(article);
     } catch (error) {
