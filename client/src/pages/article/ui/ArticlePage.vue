@@ -1,7 +1,7 @@
 <template>
   <div class="article-page">
     <div class="container">
-      <div class="flex mb-2.5 gap-x-1.5">
+      <div class="flex items-center flex-wrap mb-2.5 gap-2.5">
         <Button label="Назад" icon="pi pi-arrow-left" size="small" @click="router.back" />
         <Button
           label="Удалить"
@@ -10,6 +10,17 @@
           :loading="isLoadingRemoving"
           @click="removeArticle"
         />
+        <div
+          v-if="article?.viewCount != undefined"
+          class="flex items-center gap-1.5 text-slate-400"
+          v-tooltip.bottom="'Просмотры'"
+        >
+          <span class="pi pi-eye"></span>
+          {{ article.viewCount }}
+        </div>
+        <div v-if="preparedDate" class="text-slate-400" v-tooltip.bottom="'Дата обновления'">
+          {{ preparedDate }}
+        </div>
       </div>
       <div v-if="article" class="grid md:grid-cols-[400px_1fr] items-start gap-5">
         <ArticleCard :card="article" />
@@ -20,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { AxiosError } from 'axios'
 import Button from 'primevue/button'
@@ -33,6 +44,7 @@ import {
   type ExtendedArticle,
   update,
   remove,
+  updateViewCount,
 } from '@/entities/article'
 import { useUserStore } from '@/entities/user'
 
@@ -54,6 +66,14 @@ const getArticleById = async () => {
 }
 await getArticleById()
 
+const preparedDate = computed(() => {
+  if (!article.value?.updatedAt) {
+    return
+  }
+
+  return new Date(article.value.updatedAt).toLocaleString()
+})
+
 const isLoading = ref(false)
 const isLoadingRemoving = ref(false)
 
@@ -66,6 +86,7 @@ const onSubmit = async (payload: Article) => {
       detail: 'Статья обновлена',
       life: 3000,
     })
+    await getArticleById()
   } catch (error) {
     const err = error as AxiosError<Error>
 
@@ -103,4 +124,21 @@ const removeArticle = async () => {
     isLoadingRemoving.value = false
   }
 }
+
+const updateViewCounter = async () => {
+  try {
+    await updateViewCount(paramId, userStore.user?.email)
+  } catch (error) {
+    const err = error as AxiosError<Error>
+
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка',
+      detail: err.response?.data.message,
+      life: 3000,
+    })
+  }
+}
+
+onUnmounted(updateViewCounter)
 </script>

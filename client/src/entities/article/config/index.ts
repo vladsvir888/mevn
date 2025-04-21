@@ -15,4 +15,5 @@ export interface ExtendedArticle extends Article {
   createdAt: Date
   updatedAt: Date
   userEmail: string
+  viewCount: number
 }

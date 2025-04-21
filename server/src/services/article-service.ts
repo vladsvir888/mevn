@@ -23,6 +23,20 @@ class ArticleService {
     return article;
   }
 
+  public async updateViewCount(articleId: string, userEmail: string) {
+    const article = await this.getArticle(articleId, userEmail);
+    const filter = {
+      _id: articleId,
+      userEmail,
+    };
+    const updatedData = {
+      ...article,
+      viewCount: article.viewCount + 1,
+    };
+
+    await ArticleModel.updateOne(filter, updatedData);
+  }
+
   public async saveArticle(file: UploadedFile, data: Record<string, unknown>) {
     const fileName = `${file.md5}${path.extname(file.name)}`;
     const resultFileSaving = await fileService.save(file, FILE_DIR);

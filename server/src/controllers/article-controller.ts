@@ -95,6 +95,28 @@ class ArticleController {
       next(error);
     }
   }
+
+  public async updateViewCount(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { id: articleId, userEmail } = req.body;
+
+      if (!articleId || !userEmail) {
+        throw AppError.BadRequest(
+          "Id статьи или email пользователя не передан"
+        );
+      }
+
+      await articleService.updateViewCount(articleId, userEmail);
+
+      res.status(StatusCode.OK).json({ status: "success" });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 const articleController = new ArticleController();

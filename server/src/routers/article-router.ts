@@ -9,5 +9,6 @@ articleRouter.post("/remove", articleController.remove);
 articleRouter.get("/types", articleController.types);
 articleRouter.post("/list", articleController.list);
 articleRouter.post("/articleById/:id", articleController.article);
+articleRouter.post("/updateViewCount", articleController.updateViewCount);
 
 export default articleRouter;

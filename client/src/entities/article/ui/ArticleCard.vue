@@ -13,8 +13,8 @@
     <template #title>{{ card.title }}</template>
     <template #subtitle>
       <div class="flex justify-between items-center">
-        <p>{{ card.type.name }}</p>
-        <p>{{ preparedDate }}</p>
+        <p v-tooltip.bottom="'Тип'">{{ card.type.name }}</p>
+        <p v-tooltip.bottom="'Дата создания'">{{ preparedDate }}</p>
       </div>
     </template>
     <template #content>
