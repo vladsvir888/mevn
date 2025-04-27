@@ -105,6 +105,7 @@ const removeArticle = async () => {
   try {
     isLoadingRemoving.value = true
     await remove(paramId)
+    article.value = null
     toast.add({
       severity: 'success',
       detail: 'Статья удалена',
@@ -140,5 +141,9 @@ const updateViewCounter = async () => {
   }
 }
 
-onUnmounted(updateViewCounter)
+onUnmounted(async () => {
+  if (article.value) {
+    await updateViewCounter()
+  }
+})
 </script>

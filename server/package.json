@@ -4,8 +4,7 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "nodemon src/index.ts",
-    "build": "webpack",
-    "article-type": "npx tsc src/import-data/article-type.ts && node src/import-data/article-type.js"
+    "build": "npx tsc && node dist/import-data/article-type.js"
   },
   "keywords": [],
   "author": "",

@@ -11,7 +11,13 @@ import ArticleTypeModel from "../models/article-type-model";
 
   try {
     await mongoose.connect(process.env.MONGODB_CONNECT ?? "");
-    await ArticleTypeModel.insertMany(data);
+
+    const isExistsData = !!(await ArticleTypeModel.find({}).lean()).length;
+
+    if (!isExistsData) {
+      await ArticleTypeModel.insertMany(data);
+    }
+
     await mongoose.disconnect();
   } catch (error) {
     if (error instanceof Error) {
