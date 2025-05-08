@@ -2,7 +2,14 @@
   <div class="auth-form flex flex-col m-auto max-w-md relative">
     <div class="flex justify-between items-center mb-1">
       <Heading>{{ headingText }}</Heading>
-      <Button :label="buttonText" variant="link" as="router-link" :to="buttonLink" class="p-0!" />
+      <Button
+        v-if="isButton"
+        :label="buttonText"
+        variant="link"
+        as="router-link"
+        :to="buttonLink"
+        class="p-0!"
+      />
     </div>
     <form
       class="flex flex-col gap-3"
@@ -46,7 +53,7 @@
           >{{ surname.errorMessage }}</Message
         >
       </IftaLabel>
-      <IftaLabel>
+      <IftaLabel v-if="isEmail">
         <InputText
           v-model="email.value"
           id="email"
@@ -64,7 +71,7 @@
           >{{ email.errorMessage }}</Message
         >
       </IftaLabel>
-      <IftaLabel>
+      <IftaLabel v-if="isPassword">
         <Password
           v-model="password.value"
           id="password"
@@ -73,7 +80,7 @@
           toggleMask
           required
         />
-        <label for="password">Пароль*</label>
+        <label for="password">{{ passwordLabel }}*</label>
         <Message
           v-if="password.isTouched && !password.isValid"
           severity="error"
@@ -82,6 +89,14 @@
           >{{ password.errorMessage }}</Message
         >
       </IftaLabel>
+      <Button
+        v-if="isPasswordResetLink"
+        label="Забыли пароль?"
+        variant="link"
+        as="router-link"
+        to="/reset-password"
+        class="p-0! justify-end!"
+      />
       <Button
         type="submit"
         severity="secondary"
@@ -110,20 +125,30 @@ import RequiredFieldsAlert from '@/shared/ui/required-fields-alert'
 
 interface Props {
   headingText?: string
+  isButton?: boolean
   buttonText?: string
   buttonLink?: string
   isName?: boolean
   isSurname?: boolean
+  isEmail?: boolean
+  isPassword?: boolean
   isLoading?: boolean
+  isPasswordResetLink?: boolean
+  passwordLabel?: string
 }
 
 const {
   headingText = 'Вход',
+  isButton = true,
   buttonText = 'Регистрация',
   buttonLink = '/registration',
   isName = true,
   isSurname = true,
+  isEmail = true,
+  isPassword = true,
   isLoading = false,
+  isPasswordResetLink = false,
+  passwordLabel = 'Пароль',
 } = defineProps<Props>()
 
 const emit = defineEmits(['submit'])
@@ -160,9 +185,12 @@ const password = ref({
   errorMessage: 'Минимальная длина пароля — 6 символов.',
   isTouched: false,
 }) as Ref<Validator>
-const inputs = [isName && name, isSurname && surname, email, password].filter(
-  Boolean,
-) as Ref<Validator>[]
+const inputs = [
+  isName && name,
+  isSurname && surname,
+  isEmail && email,
+  isPassword && password,
+].filter(Boolean) as Ref<Validator>[]
 const { result } = useValidation(inputs)
 const isAllowSubmit = computed(() => {
   return result.every((item) => item.value.isValid)

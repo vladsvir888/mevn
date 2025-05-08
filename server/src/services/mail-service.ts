@@ -15,18 +15,13 @@ class MailService {
     });
   }
 
-  public async sendActivationMail(to: string, link: string) {
+  public async sendMail(to: string, subject: string, callback: () => string) {
     await this.transporter.sendMail({
       from: process.env.SMTP_USER,
       to,
-      subject: "Активация аккаунта",
+      subject,
       text: "",
-      html: `
-        <div>
-          <h1>Для активации перейдите по ссылке</h1>
-          <a href="${link}">${link}</a>
-        </div>
-        `,
+      html: callback(),
     });
   }
 }

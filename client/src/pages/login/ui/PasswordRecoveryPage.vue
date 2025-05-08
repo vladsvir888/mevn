@@ -1,11 +1,14 @@
 <template>
-  <div class="login-page">
+  <div class="password-recovery-page">
     <div class="container">
       <UserForm
+        heading-text="Восстановление пароля"
+        password-label="Новый пароль"
+        :is-button="false"
         :is-name="false"
         :is-surname="false"
+        :is-email="false"
         :is-loading="isLoading"
-        :is-password-reset-link="true"
         @submit="onSubmit"
       />
     </div>
@@ -16,29 +19,26 @@
 import { AxiosError } from 'axios'
 import { useToast } from 'primevue/usetoast'
 import type { Error } from '@/shared/config'
-import { login, UserForm, useUserStore, type User } from '@/entities/user'
-import { useRouter } from 'vue-router'
+import { UserForm, type User, recoveryPassword } from '@/entities/user'
 import { ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
-const userStore = useUserStore()
-const router = useRouter()
 const toast = useToast()
+const router = useRouter()
+const route = useRoute()
 
 const isLoading = ref(false)
 
-const onSubmit = async (payload: User) => {
+const onSubmit = async (payload: { password: string }) => {
   try {
     isLoading.value = true
-
-    const result = await login(payload)
-
-    localStorage.setItem('token', result.data.accessToken)
-    localStorage.setItem('user', JSON.stringify(result.data.user))
-
-    userStore.setUser(result.data.user)
-    userStore.setToken(result.data.accessToken)
-
-    router.push('/')
+    await recoveryPassword({ ...payload, link: route.params.id as string })
+    toast.add({
+      severity: 'success',
+      detail: 'Пароль сброшен',
+      life: 3000,
+    })
+    router.push('/login')
   } catch (error) {
     const err = error as AxiosError<Error>
 

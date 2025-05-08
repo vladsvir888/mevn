@@ -1,11 +1,13 @@
 <template>
-  <div class="login-page">
+  <div class="password-reset-page">
     <div class="container">
       <UserForm
+        heading-text="Сброс пароля"
+        :is-button="false"
         :is-name="false"
         :is-surname="false"
+        :is-password="false"
         :is-loading="isLoading"
-        :is-password-reset-link="true"
         @submit="onSubmit"
       />
     </div>
@@ -16,29 +18,22 @@
 import { AxiosError } from 'axios'
 import { useToast } from 'primevue/usetoast'
 import type { Error } from '@/shared/config'
-import { login, UserForm, useUserStore, type User } from '@/entities/user'
-import { useRouter } from 'vue-router'
+import { UserForm, type User, resetPassword } from '@/entities/user'
 import { ref } from 'vue'
 
-const userStore = useUserStore()
-const router = useRouter()
 const toast = useToast()
 
 const isLoading = ref(false)
 
-const onSubmit = async (payload: User) => {
+const onSubmit = async (payload: { email: string }) => {
   try {
     isLoading.value = true
-
-    const result = await login(payload)
-
-    localStorage.setItem('token', result.data.accessToken)
-    localStorage.setItem('user', JSON.stringify(result.data.user))
-
-    userStore.setUser(result.data.user)
-    userStore.setToken(result.data.accessToken)
-
-    router.push('/')
+    await resetPassword(payload)
+    toast.add({
+      severity: 'warn',
+      detail: 'На вашу почту отправлено письмо для восстановления аккаунта',
+      life: 3000,
+    })
   } catch (error) {
     const err = error as AxiosError<Error>
 

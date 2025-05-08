@@ -83,6 +83,35 @@ class UserController {
     }
   }
 
+  public async sendRecoveryMail(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { email } = req.body as User;
+      await userService.sendRecoveryMail(email);
+      res.status(StatusCode.OK).json({ status: "success" });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public async recoverPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const recoveryLink = req.params.link;
+      const { newPassword } = req.body;
+      await userService.recoveryPassword(newPassword, recoveryLink);
+      res.status(StatusCode.OK).json({ status: "success" });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   public test(req: Request, res: Response, next: NextFunction) {
     try {
       res.status(StatusCode.OK).json({ msg: "Привет!" });

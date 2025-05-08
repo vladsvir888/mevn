@@ -8,6 +8,8 @@ import tokenService from "./token-service";
 import { UserResponse } from "../types/user";
 import { randomUUID } from "crypto";
 import mailService from "./mail-service";
+import activation from "./mails/activation";
+import recovery from "./mails/recovery";
 
 class UserService {
   public validationReq(req: Request) {
@@ -38,6 +40,7 @@ class UserService {
     const salt = Number(process.env.SALT) || 10;
     const hashPassword = await bcrypt.hash(password, salt);
     const activationLink = randomUUID();
+    const fullActivationLink = `${process.env.API_URL}/auth/activate/${activationLink}`;
     const newUser = new UserModel({
       name,
       surname,
@@ -46,9 +49,8 @@ class UserService {
       activationLink,
     });
     const savedUser = await newUser.save();
-    await mailService.sendActivationMail(
-      email,
-      `${process.env.API_URL}/auth/activate/${activationLink}`
+    await mailService.sendMail(email, "Активация аккаунта", () =>
+      activation(fullActivationLink)
     );
     const userDto = new UserDto(savedUser);
 
@@ -130,6 +132,40 @@ class UserService {
     }
 
     user.isActivated = true;
+    await user.save();
+  }
+
+  public async sendRecoveryMail(email: string) {
+    const existingUser = await UserModel.findOne({ email }).lean();
+
+    if (!existingUser) {
+      throw AppError.Unauthorized(
+        "Пользователь с таким адресом электронной почты не найден."
+      );
+    }
+
+    const recoveryLink = randomUUID();
+    const fullRecoveryLink = `${process.env.CLIENT_URL}/reset-password/${recoveryLink}`;
+
+    await mailService.sendMail(email, "Восстановление аккаунта", () =>
+      recovery(fullRecoveryLink)
+    );
+
+    await UserModel.updateOne({ email }, { $set: { recoveryLink } });
+  }
+
+  public async recoveryPassword(newPassword: string, recoveryLink: string) {
+    const user = await UserModel.findOne({ recoveryLink });
+
+    if (!user) {
+      throw AppError.BadRequest("Неккоректная ссылка восстановления");
+    }
+
+    const salt = Number(process.env.SALT) || 10;
+    const hashPassword = await bcrypt.hash(newPassword, salt);
+
+    user.recoveryLink = undefined;
+    user.password = hashPassword;
     await user.save();
   }
 }

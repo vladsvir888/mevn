@@ -1,5 +1,5 @@
 import HomePage from '@/pages/home/ui/HomePage.vue'
-import { RegistrationPage, LoginPage } from '@/pages/login'
+import { RegistrationPage, LoginPage, PasswordResetPage, PasswordRecoveryPage } from '@/pages/login'
 import PersonalPage from '@/pages/personal'
 import NotFoundPage from '@/pages/not-found'
 import ArticlesPage from '@/pages/articles'
@@ -26,6 +26,18 @@ const routes: RouteRecordRaw[] = [
     name: 'login',
     path: '/login',
     component: LoginPage,
+    meta: { requiresAuth: false },
+  },
+  {
+    name: 'reset-password',
+    path: '/reset-password',
+    component: PasswordResetPage,
+    meta: { requiresAuth: false },
+  },
+  {
+    name: 'reset-password-id',
+    path: '/reset-password/:id',
+    component: PasswordRecoveryPage,
     meta: { requiresAuth: false },
   },
   {
