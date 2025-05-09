@@ -20,8 +20,9 @@ import { AxiosError } from 'axios'
 import { useToast } from 'primevue/usetoast'
 import type { Error } from '@/shared/config'
 import { UserForm, type User, recoveryPassword } from '@/entities/user'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useMeta } from '@/shared/lib/use'
 
 const toast = useToast()
 const router = useRouter()
@@ -52,4 +53,10 @@ const onSubmit = async (payload: { password: string }) => {
     isLoading.value = false
   }
 }
+
+const computedMeta = computed(() => ({
+  title: 'Восстановление пароля - MEVN',
+  description: 'Восстановление пароля - MEVN',
+}))
+useMeta(computedMeta)
 </script>

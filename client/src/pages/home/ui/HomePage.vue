@@ -12,6 +12,14 @@
 
 <script setup lang="ts">
 import { useUserStore } from '@/entities/user'
+import { useMeta } from '@/shared/lib/use'
+import { computed } from 'vue'
 
 const userStore = useUserStore()
+
+const computedMeta = computed(() => ({
+  title: 'Главная - MEVN',
+  description: 'Главная - MEVN',
+}))
+useMeta(computedMeta)
 </script>

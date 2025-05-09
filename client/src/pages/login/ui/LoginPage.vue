@@ -18,7 +18,8 @@ import { useToast } from 'primevue/usetoast'
 import type { Error } from '@/shared/config'
 import { login, UserForm, useUserStore, type User } from '@/entities/user'
 import { useRouter } from 'vue-router'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import { useMeta } from '@/shared/lib/use'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -52,4 +53,10 @@ const onSubmit = async (payload: User) => {
     isLoading.value = false
   }
 }
+
+const computedMeta = computed(() => ({
+  title: 'Вход - MEVN',
+  description: 'Вход - MEVN',
+}))
+useMeta(computedMeta)
 </script>

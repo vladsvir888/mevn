@@ -22,8 +22,10 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import Button from 'primevue/button'
 import { useUserStore } from '@/entities/user'
+import { useMeta } from '@/shared/lib/use'
 
 const userStore = useUserStore()
 
@@ -44,4 +46,10 @@ const data = [
     descr: userStore.user?.email,
   },
 ]
+
+const computedMeta = computed(() => ({
+  title: 'Информация о пользователе - MEVN',
+  description: 'Информация о пользователе - MEVN',
+}))
+useMeta(computedMeta)
 </script>

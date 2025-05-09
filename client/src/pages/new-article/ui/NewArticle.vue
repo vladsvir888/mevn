@@ -7,12 +7,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { AxiosError } from 'axios'
 import { useToast } from 'primevue/usetoast'
 import type { Error } from '@/shared/config'
 import { ArticleForm, type Article, save } from '@/entities/article'
 import { useUserStore } from '@/entities/user'
+import { useMeta } from '@/shared/lib/use'
 
 const toast = useToast()
 const userStore = useUserStore()
@@ -41,4 +42,10 @@ const onSubmit = async (payload: Article) => {
     isLoading.value = false
   }
 }
+
+const computedMeta = computed(() => ({
+  title: 'Новая статья - MEVN',
+  description: 'Новая статья - MEVN',
+}))
+useMeta(computedMeta)
 </script>

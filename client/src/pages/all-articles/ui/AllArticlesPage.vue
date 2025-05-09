@@ -21,13 +21,20 @@
 </template>
 
 <script setup lang="ts">
-import { onUnmounted } from 'vue'
+import { onUnmounted, computed } from 'vue'
 import { ArticleCardList, useArticleList } from '@/entities/article'
 import Paginator from 'primevue/paginator'
 import ProgressSpinner from 'primevue/progressspinner'
+import { useMeta } from '@/shared/lib/use'
 
 const { first, limit, totalRecords, pages, articleList, handlePage, isLoading, unwatch } =
   await useArticleList()
 
 onUnmounted(unwatch)
+
+const computedMeta = computed(() => ({
+  title: 'Все статьи - MEVN',
+  description: 'Все статьи - MEVN',
+}))
+useMeta(computedMeta)
 </script>

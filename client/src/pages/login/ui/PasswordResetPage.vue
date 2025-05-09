@@ -18,8 +18,9 @@
 import { AxiosError } from 'axios'
 import { useToast } from 'primevue/usetoast'
 import type { Error } from '@/shared/config'
-import { UserForm, type User, resetPassword } from '@/entities/user'
-import { ref } from 'vue'
+import { UserForm, resetPassword } from '@/entities/user'
+import { computed, ref } from 'vue'
+import { useMeta } from '@/shared/lib/use'
 
 const toast = useToast()
 
@@ -47,4 +48,10 @@ const onSubmit = async (payload: { email: string }) => {
     isLoading.value = false
   }
 }
+
+const computedMeta = computed(() => ({
+  title: 'Сброс пароля - MEVN',
+  description: 'Сброс пароля - MEVN',
+}))
+useMeta(computedMeta)
 </script>

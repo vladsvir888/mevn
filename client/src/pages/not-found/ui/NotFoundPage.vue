@@ -15,4 +15,12 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
 import Heading from '@/shared/ui/heading'
+import { computed } from 'vue'
+import { useMeta } from '@/shared/lib/use'
+
+const computedMeta = computed(() => ({
+  title: '404 - MEVN',
+  description: '404 - MEVN',
+}))
+useMeta(computedMeta)
 </script>

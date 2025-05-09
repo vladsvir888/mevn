@@ -47,6 +47,7 @@ import {
   updateViewCount,
 } from '@/entities/article'
 import { useUserStore } from '@/entities/user'
+import { useMeta } from '@/shared/lib/use'
 
 const router = useRouter()
 const route = useRoute()
@@ -146,4 +147,10 @@ onUnmounted(async () => {
     await updateViewCounter()
   }
 })
+
+const computedMeta = computed(() => ({
+  title: `${article.value?.title} - MEVN`,
+  description: `${article.value?.title} - MEVN`,
+}))
+useMeta(computedMeta)
 </script>
